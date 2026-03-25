@@ -443,8 +443,6 @@
     position: relative;
   }
 
-  .footer-band-text {}
-
   .footer-band-label {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 0.65rem;
@@ -678,27 +676,24 @@
 </head>
 <body>
 
-<!-- PROGRESS BAR -->
 <div class="progress-bar" id="progress"></div>
 
-<!-- NAV -->
 <nav>
-  <a href="terrain-vague.html" class="nav-logo">Terrain<span> Vague</span></a>
+  <a href="index.html" class="nav-logo">Terrain<span> Vague</span></a>
   <ul class="nav-links">
-    <li><a href="#">Articles</a></li>
+    <li><a href="index.html#articles">Articles</a></li>
     <li><a href="#">Mindset</a></li>
     <li><a href="#">Parcours</a></li>
     <li><a href="terrain-vague-apropos.html">À propos</a></li>
   </ul>
 </nav>
 
-<!-- ARTICLE HERO -->
 <header class="article-hero">
   <div class="hero-inner">
     <div class="article-breadcrumb">
-      <a href="terrain-vague.html">Accueil</a>
+      <a href="index.html">Accueil</a>
       <span>/</span>
-      <a href="#">Articles</a>
+      <a href="index.html#articles">Articles</a>
       <span>/</span>
       Mindset
     </div>
@@ -735,10 +730,8 @@
   </div>
 </header>
 
-<!-- ARTICLE LAYOUT -->
 <div class="article-layout">
 
-  <!-- SIDEBAR -->
   <aside class="article-sidebar">
 
     <div class="reading-time-block">
@@ -768,7 +761,6 @@
 
   </aside>
 
-  <!-- ARTICLE BODY -->
   <article class="article-body">
 
     <p class="intro-para">
@@ -902,7 +894,7 @@
       C'est des questions simples en apparence, difficiles à tenir en face.
     </p>
 
-    <h2 id="section-5">Comment <em>on en sort</em></h2>
+    <h2 id="section-2">Comment <em>on en sort</em></h2>
 
     <p>
       Pas en accélérant. C'est le réflexe naturel et c'est presque toujours une erreur. 
@@ -962,7 +954,6 @@
   </article>
 </div>
 
-<!-- ARTICLE FOOTER BAND -->
 <div class="article-footer-band">
   <div class="footer-band-inner">
     <div class="footer-band-text">
@@ -972,13 +963,12 @@
       </div>
     </div>
     <div class="footer-band-actions">
-      <a href="#" class="btn-creme">Tous les articles</a>
+      <a href="index.html#articles" class="btn-creme">Tous les articles</a>
       <a href="terrain-vague-apropos.html" class="btn-ghost">En savoir plus sur ce blog</a>
     </div>
   </div>
 </div>
 
-<!-- SUGGESTED ARTICLES -->
 <section class="suggested-section">
   <div class="section-header">
     <span class="section-label">À lire aussi</span>
@@ -1008,7 +998,6 @@
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <div>
     <div class="footer-logo">Terrain <span>Vague</span></div>
@@ -1020,7 +1009,6 @@
   </div>
 </footer>
 
-<!-- READING PROGRESS SCRIPT -->
 <script>
   const bar = document.getElementById('progress');
   window.addEventListener('scroll', () => {
