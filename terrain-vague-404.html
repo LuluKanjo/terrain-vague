@@ -28,7 +28,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-x: hidden;
     position: relative;
   }
 
@@ -38,30 +38,22 @@
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
     pointer-events: none;
-    z-index: 10;
+    z-index: 1000;
     opacity: 0.7;
   }
 
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse at 15% 85%, rgba(184,75,42,0.25) 0%, transparent 50%),
-      radial-gradient(ellipse at 85% 15%, rgba(139,94,60,0.2) 0%, transparent 45%),
-      radial-gradient(ellipse at 50% 50%, rgba(44,31,20,0) 0%, rgba(20,12,6,0.4) 100%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
+  /* NAVIGATION (Adaptée au fond sombre) */
   nav {
-    position: relative;
-    z-index: 20;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 2.5rem;
-    border-bottom: 1px solid rgba(200,187,168,0.1);
+    padding: 1.2rem 2.5rem;
+    background: rgba(44, 31, 20, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(212, 184, 150, 0.1);
   }
 
   .nav-logo {
@@ -72,20 +64,34 @@
     text-transform: uppercase;
     color: var(--creme);
     text-decoration: none;
-    opacity: 0.7;
-    transition: opacity 0.2s;
   }
-  .nav-logo:hover { opacity: 1; }
   .nav-logo span { color: var(--rouille); }
 
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sable);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--creme); }
+
+  /* MAIN CONTENT */
   main {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    padding: 8rem 2rem 4rem;
     z-index: 5;
-    padding: 3rem 2rem;
   }
 
   .container {
@@ -102,10 +108,8 @@
     color: transparent;
     -webkit-text-stroke: 1px rgba(212,184,150,0.2);
     letter-spacing: -0.03em;
-    position: relative;
-    display: block;
+    margin-bottom: 1rem;
     animation: fadeInDown 0.9s ease both;
-    user-select: none;
   }
 
   .lost-label {
@@ -142,33 +146,11 @@
     animation: fadeInUp 0.7s ease 0.5s both;
   }
 
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin: 0 auto 3rem;
-    max-width: 300px;
-    opacity: 0.25;
-    animation: fadeInUp 0.7s ease 0.55s both;
-  }
-  .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--sable);
-  }
-  .divider span {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.8rem;
-    color: var(--sable);
-    letter-spacing: 0.2em;
-  }
-
   .actions {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
     animation: fadeInUp 0.7s ease 0.65s both;
   }
 
@@ -188,7 +170,6 @@
     transition: background 0.2s;
   }
   .btn-primary:hover { background: var(--sable); }
-  .btn-primary::after { content: '→'; }
 
   .btn-secondary {
     font-family: 'Barlow Condensed', sans-serif;
@@ -204,32 +185,16 @@
   .btn-secondary:hover { color: var(--brume); border-color: var(--brume); }
 
   .bottom-quote {
-    position: fixed;
-    bottom: 2rem;
-    left: 0; right: 0;
+    padding: 2rem;
     text-align: center;
     z-index: 5;
-    animation: fadeInUp 0.8s ease 0.9s both;
   }
   .bottom-quote p {
     font-family: 'Playfair Display', serif;
     font-size: 0.85rem;
     font-style: italic;
     color: rgba(200,187,168,0.3);
-    letter-spacing: 0.02em;
   }
-
-  .corner {
-    position: fixed;
-    width: 60px;
-    height: 60px;
-    z-index: 5;
-    opacity: 0.15;
-  }
-  .corner--tl { top: 5rem; left: 2rem; border-top: 1px solid var(--sable); border-left: 1px solid var(--sable); }
-  .corner--tr { top: 5rem; right: 2rem; border-top: 1px solid var(--sable); border-right: 1px solid var(--sable); }
-  .corner--bl { bottom: 5rem; left: 2rem; border-bottom: 1px solid var(--sable); border-left: 1px solid var(--sable); }
-  .corner--br { bottom: 5rem; right: 2rem; border-bottom: 1px solid var(--sable); border-right: 1px solid var(--sable); }
 
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(18px); }
@@ -241,26 +206,23 @@
   }
 
   @media (max-width: 600px) {
-    nav { padding: 1.2rem 1.5rem; }
-    .corner { display: none; }
-    .bottom-quote { bottom: 1.5rem; }
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; } /* On cache les liens sur mobile pour la 404 */
   }
 </style>
 </head>
 <body>
 
-<div class="corner corner--tl"></div>
-<div class="corner corner--tr"></div>
-<div class="corner corner--bl"></div>
-<div class="corner corner--br"></div>
-
 <nav>
   <a href="index.html" class="nav-logo">Terrain<span> Vague</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#articles">Articles</a></li>
+    <li><a href="terrain-vague-apropos.html">À propos</a></li>
+  </ul>
 </nav>
 
 <main>
   <div class="container">
-
     <span class="lost-label">Page introuvable</span>
     <div class="four-oh-four">404</div>
 
@@ -274,13 +236,10 @@
       tomber sur des impasses, rebrousser chemin, et repartir autrement.
     </p>
 
-    <div class="divider"><span>✦</span></div>
-
     <div class="actions">
-  <a href="index.html" class="btn-primary">Retour à l'accueil</a>
-  <a href="index.html#articles" class="btn-secondary">Voir tous les articles</a>
-</div>
-
+      <a href="index.html" class="btn-primary">Retour à l'accueil</a>
+      <a href="index.html#articles" class="btn-secondary">Voir tous les articles</a>
+    </div>
   </div>
 </main>
 
