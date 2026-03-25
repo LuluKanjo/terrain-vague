@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terrain Vague</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --terre:     #2C1F14;
+    --argile:    #8B5E3C;
+    --sable:     #D4B896;
+    --creme:     #F2EAD8;
+    --rouille:   #B84B2A;
+    --mousse:    #4A5240;
+    --brume:     #C8BBA8;
+    --blanc:     #FAF7F2;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--blanc);
+    color: var(--terre);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 2.5rem;
+    background: rgba(242, 234, 216, 0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(139, 94, 60, 0.15);
+  }
+
+  .nav-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--terre);
+    text-decoration: none;
+  }
+
+  .nav-logo span {
+    color: var(--rouille);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 400;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--argile);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--rouille); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    background: var(--terre);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 7rem 3.5rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Grain texture on dark side */
+  .hero-left::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(139,94,60,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(184,75,42,0.15) 0%, transparent 50%);
+  }
+
+  .hero-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rouille);
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background: var(--rouille);
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(4rem, 7vw, 6.5rem);
+    font-weight: 900;
+    line-height: 0.9;
+    color: var(--creme);
+    position: relative;
+    margin-bottom: 0.3rem;
+  }
+
+  .hero-title em {
+    display: block;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--sable);
+    font-size: 0.7em;
+    margin-top: 0.2em;
+  }
+
+  .hero-desc {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--brume);
+    max-width: 36ch;
+    position: relative;
+  }
+
+  .hero-cta {
+    margin-top: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--creme);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rouille);
+    padding-bottom: 0.3rem;
+    position: relative;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .hero-cta:hover { color: var(--rouille); }
+
+  .hero-cta::after {
+    content: '→';
+    transition: transform 0.2s;
+  }
+
+  .hero-cta:hover::after { transform: translateX(4px); }
+
+  .hero-right {
+    background: var(--creme);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Organic background art */
+  .hero-right::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 70% 30%, rgba(139,94,60,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse at 20% 80%, rgba(212,184,150,0.3) 0%, transparent 45%);
+  }
+
+  .hero-quote-block {
+    position: relative;
+    padding: 3rem;
+    max-width: 440px;
+    text-align: center;
+  }
+
+  .hero-quote-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    font-weight: 900;
+    color: var(--sable);
+    line-height: 0.6;
+    opacity: 0.5;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .hero-quote {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--terre);
+  }
+
+  .hero-quote-author {
+    margin-top: 1.5rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--argile);
+  }
+
+  /* Vertical label */
+  .hero-vertical-label {
+    position: absolute;
+    right: 2rem;
+    bottom: 3rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--argile);
+    writing-mode: vertical-rl;
+    opacity: 0.5;
+  }
+
+  /* ── INTRO BAND ── */
+  .intro-band {
+    background: var(--argile);
+    padding: 2rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    overflow: hidden;
+  }
+
+  .intro-band-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(242,234,216,0.6);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .intro-band-scroll {
+    display: flex;
+    gap: 3rem;
+    animation: scrollLeft 18s linear infinite;
+  }
+
+  .intro-band-item {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--creme);
+    white-space: nowrap;
+    opacity: 0.85;
+  }
+
+  .intro-band-sep {
+    color: var(--rouille);
+    font-style: normal;
+  }
+
+  @keyframes scrollLeft {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── SECTION TITLES ── */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rouille);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 900;
+    color: var(--terre);
+    line-height: 1.1;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--sande, var(--sable)), transparent);
+    opacity: 0.4;
+  }
+
+  /* ── ARTICLES ── */
+  .articles-section {
+    padding: 5rem 2.5rem;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .articles-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1.5px;
+    background: var(--sable);
+  }
+
+  /* Featured article */
+  .article-featured {
+    grid-row: 1 / 3;
+    background: var(--creme);
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 520px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .article-featured::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 80% 10%, rgba(184,75,42,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 10% 90%, rgba(139,94,60,0.1) 0%, transparent 50%);
+  }
+
+  .article-featured:hover { background: #EDE3CE; }
+
+  .article-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    font-weight: 900;
+    color: var(--sable);
+    opacity: 0.4;
+    line-height: 1;
+    position: absolute;
+    top: 1.5rem;
+    right: 2rem;
+  }
+
+  .article-tag {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rouille);
+    border: 1px solid var(--rouille);
+    padding: 0.25rem 0.6rem;
+    margin-bottom: 1.2rem;
+    width: fit-content;
+  }
+
+  .article-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--terre);
+    position: relative;
+  }
+
+  .article-featured .article-title {
+    font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  }
+
+  .article-excerpt {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--argile);
+    position: relative;
+  }
+
+  .article-meta {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .article-date {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: var(--brume);
+    text-transform: uppercase;
+  }
+
+  .article-read-time {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--brume);
+  }
+
+  /* Secondary articles */
+  .article-secondary {
+    background: var(--blanc);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .article-secondary:hover { background: var(--creme); }
+
+  .article-secondary .article-title {
+    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+    margin-top: 0.8rem;
+  }
+
+  .article-secondary .article-excerpt {
+    font-size: 0.85rem;
+    margin-top: 0.6rem;
+  }
+
+  /* ── MANIFESTO SECTION ── */
+  .manifesto-section {
+    background: var(--terre);
+    padding: 6rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .manifesto-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 90% 50%, rgba(184,75,42,0.2) 0%, transparent 55%),
+      radial-gradient(ellipse at 5% 30%, rgba(139,94,60,0.3) 0%, transparent 50%);
+  }
+
+  .manifesto-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .manifesto-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--rouille);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .manifesto-label::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: var(--rouille);
+    display: block;
+  }
+
+  .manifesto-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 2.8vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--creme);
+  }
+
+  .manifesto-text strong {
+    color: var(--sable);
+    font-style: italic;
+  }
+
+  .manifesto-sub {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--brume);
+    max-width: 56ch;
+    border-left: 2px solid var(--rouille);
+    padding-left: 1.5rem;
+  }
+
+  /* ── THÈMES ── */
+  .themes-section {
+    padding: 5rem 2.5rem;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .themes-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--sable);
+    border: 1px solid var(--sable);
+  }
+
+  .theme-card {
+    background: var(--blanc);
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .theme-card:hover {
+    background: var(--creme);
+  }
+
+  .theme-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--rouille);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .theme-card:hover::after { transform: scaleX(1); }
+
+  .theme-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  .theme-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--terre);
+  }
+
+  .theme-desc {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--argile);
+  }
+
+  .theme-count {
+    margin-top: auto;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--brume);
+  }
+
+  /* ── NEWSLETTER ── */
+  .newsletter-section {
+    background: var(--creme);
+    padding: 5rem 2.5rem;
+    border-top: 1px solid rgba(139,94,60,0.2);
+    border-bottom: 1px solid rgba(139,94,60,0.2);
+  }
+
+  .newsletter-inner {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .newsletter-inner .section-label {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .newsletter-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 900;
+    color: var(--terre);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  .newsletter-title em {
+    font-style: italic;
+    color: var(--rouille);
+  }
+
+  .newsletter-desc {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--argile);
+    margin-bottom: 2rem;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 0;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .newsletter-input {
+    flex: 1;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--sable);
+    border-right: none;
+    background: var(--blanc);
+    font-family: 'Libre Baskerville', serif;
+    font-size: 0.85rem;
+    color: var(--terre);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .newsletter-input::placeholder { color: var(--brume); }
+  .newsletter-input:focus { border-color: var(--argile); }
+
+  .newsletter-btn {
+    padding: 0.9rem 1.5rem;
+    background: var(--rouille);
+    color: var(--blanc);
+    border: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .newsletter-btn:hover { background: var(--terre); }
+
+  .newsletter-note {
+    margin-top: 1rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--brume);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--terre);
+    padding: 3rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--creme);
+  }
+
+  .footer-logo span {
+    color: var(--rouille);
+    font-style: normal;
+  }
+
+  .footer-tagline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--brume);
+    opacity: 0.5;
+    margin-top: 0.3rem;
+  }
+
+  .footer-right {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(200,187,168,0.4);
+    text-align: right;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-left > * {
+    animation: fadeInUp 0.8s ease both;
+  }
+
+  .hero-eyebrow { animation-delay: 0.1s; }
+  .hero-title   { animation-delay: 0.25s; }
+  .hero-desc    { animation-delay: 0.4s; }
+  .hero-cta     { animation-delay: 0.55s; }
+
+  .hero-quote-block {
+    animation: fadeInUp 1s ease 0.5s both;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-right { min-height: 340px; }
+    .articles-grid { grid-template-columns: 1fr; }
+    .article-featured { grid-row: auto; min-height: 380px; }
+    .themes-grid { grid-template-columns: 1fr 1fr; }
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.2rem; }
+  }
+
+  @media (max-width: 600px) {
+    .themes-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .footer-right { text-align: center; }
+    .newsletter-form { flex-direction: column; }
+    .newsletter-input { border-right: 1px solid var(--sable); border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Terrain<span> Vague</span></a>
+  <ul class="nav-links">
+    <li><a href="#articles">Articles</a></li>
+    <li><a href="#">Mindset</a></li>
+    <li><a href="#">Parcours</a></li>
+    <li><a href="terrain-vague-apropos.html">À propos</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Blog d'élévation</div>
+    <h1 class="hero-title">
+      Terrain
+      <em>Vague</em>
+    </h1>
+    <p class="hero-desc">
+      L'espace entre ce qu'on était et ce qu'on devient. 
+      Pas de recettes miracles, pas de guru. 
+      Juste un mec qui trime, qui observe, et qui écrit.
+    </p>
+    <a href="#articles" class="hero-cta">Lire les articles</a>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-quote-block">
+      <span class="hero-quote-mark">"</span>
+      <p class="hero-quote">
+        On construit pas une vie avec des plans parfaits. 
+        On la construit avec ce qu'on a, là où on est.
+      </p>
+      <div class="hero-quote-author">— Terrain Vague #001</div>
+    </div>
+    <div class="hero-vertical-label">Mindset · Parcours · Vraie vie</div>
+  </div>
+</section>
+
+<!-- INTRO BAND -->
+<div class="intro-band">
+  <span class="intro-band-label">Thèmes</span>
+  <div class="intro-band-scroll">
+    <span class="intro-band-item">Résilience <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Entrepreneuriat du réel <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Effort & discipline <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Identité & direction <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Terrain vague <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Reconstruire <span class="intro-band-sep">·</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="intro-band-item">Résilience <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Entrepreneuriat du réel <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Effort & discipline <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Identité & direction <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Terrain vague <span class="intro-band-sep">·</span></span>
+    <span class="intro-band-item">Reconstruire <span class="intro-band-sep">·</span></span>
+  </div>
+</div>
+
+<!-- ARTICLES -->
+<section class="articles-section" id="articles">
+  <div class="section-header">
+    <span class="section-label">À la une</span>
+    <h2 class="section-title">Derniers articles</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="articles-grid">
+
+    <!-- Featured -->
+    <article class="article-featured">
+      <span class="article-number">01</span>
+      <div class="article-tag">Mindset</div>
+      <h2 class="article-title">
+        Le terrain vague, c'est pas une impasse. C'est un chantier sans panneau de chantier.
+      </h2>
+      <p class="article-excerpt">
+        On nous a vendu l'idée que la vie adulte c'était un chemin balisé. 
+        Un boulot, une maison, une retraite. Mais la plupart d'entre nous marchent dans un terrain 
+        sans nom, sans carte, sans certitude. Et c'est justement là que tout commence.
+      </p>
+      <div class="article-meta">
+        <span class="article-date">Mars 2026</span>
+        <span class="article-read-time">8 min de lecture</span>
+      </div>
+    </article>
+
+    <!-- Secondary 1 -->
+    <article class="article-secondary">
+      <div>
+        <div class="article-tag">Parcours</div>
+        <h3 class="article-title">
+          J'ai tout plaqué pour monter ma boîte dans un département que personne ne connaît.
+        </h3>
+        <p class="article-excerpt">
+          L'Ariège, 153 000 habitants, et moi avec mon projet de formation premiers secours. 
+          Voilà ce que personne ne te dit sur l'installation en zone rurale.
+        </p>
+      </div>
+      <div class="article-meta">
+        <span class="article-date">Fév. 2026</span>
+        <span class="article-read-time">6 min</span>
+      </div>
+    </article>
+
+    <!-- Secondary 2 -->
+    <article class="article-secondary">
+      <div>
+        <div class="article-tag">Effort</div>
+        <h3 class="article-title">
+          La discipline, c'est pas pour les forts. C'est ce qui crée les forts.
+        </h3>
+        <p class="article-excerpt">
+          On confond la cause et l'effet. On attend d'être motivé pour agir. 
+          Mais c'est l'action qui génère la motivation, pas l'inverse.
+        </p>
+      </div>
+      <div class="article-meta">
+        <span class="article-date">Jan. 2026</span>
+        <span class="article-read-time">5 min</span>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto-section">
+  <div class="manifesto-inner">
+    <div class="manifesto-label">Le manifeste</div>
+    <p class="manifesto-text">
+      Ce blog, c'est pas pour ceux qui ont déjà tout. 
+      C'est pour ceux qui <strong>construisent encore</strong>, 
+      qui doutent encore, qui triment encore — 
+      et qui refusent quand même de <strong>baisser les bras</strong>.
+    </p>
+    <p class="manifesto-sub">
+      Pas de storytelling taillé pour LinkedIn. Pas de success story propre et lisse. 
+      Juste ce qui est vrai, ce qui fait mal, ce qui change quelque chose. 
+      Écrit depuis le terrain.
+    </p>
+  </div>
+</section>
+
+<!-- THÈMES -->
+<section class="themes-section">
+  <div class="section-header">
+    <span class="section-label">Explorer</span>
+    <h2 class="section-title">Par thème</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="themes-grid">
+    <div class="theme-card">
+      <div class="theme-icon">🧱</div>
+      <div class="theme-name">Reconstruire</div>
+      <div class="theme-desc">Repartir de zéro ou presque. Sans se raconter d'histoires.</div>
+      <div class="theme-count">8 articles</div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🧭</div>
+      <div class="theme-name">Direction</div>
+      <div class="theme-desc">Trouver le cap quand tout le monde t'en propose un différent.</div>
+      <div class="theme-count">6 articles</div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">⚒️</div>
+      <div class="theme-name">Effort réel</div>
+      <div class="theme-desc">Ce que personne ne montre sur les réseaux. Le travail du quotidien.</div>
+      <div class="theme-count">11 articles</div>
+    </div>
+    <div class="theme-card">
+      <div class="theme-icon">🌱</div>
+      <div class="theme-name">Élévation</div>
+      <div class="theme-desc">Grandir sans se perdre. S'améliorer sans se trahir.</div>
+      <div class="theme-count">9 articles</div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter-section">
+  <div class="newsletter-inner">
+    <span class="section-label">Rester dans la boucle</span>
+    <h2 class="newsletter-title">Un article, <em>quand ça vaut le coup</em></h2>
+    <p class="newsletter-desc">
+      Pas de fréquence imposée. Pas de contenu pour remplir. 
+      Un email quand j'ai quelque chose de vrai à dire.
+    </p>
+    <div class="newsletter-form">
+      <input type="email" class="newsletter-input" placeholder="ton@email.fr">
+      <button class="newsletter-btn">Je suis</button>
+    </div>
+    <p class="newsletter-note">Zéro spam. Désinscription en un clic. Promis.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">Terrain <span>Vague</span></div>
+    <div class="footer-tagline">L'élévation depuis le sol</div>
+  </div>
+  <div class="footer-right">
+    © 2026 — Terrain Vague<br>
+    Blog personnel · Tous droits réservés
+  </div>
+</footer>
+
+</body>
+</html>

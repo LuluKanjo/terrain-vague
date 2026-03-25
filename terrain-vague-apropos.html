@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>À propos — Terrain Vague</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --terre:   #2C1F14;
+    --argile:  #8B5E3C;
+    --sable:   #D4B896;
+    --creme:   #F2EAD8;
+    --rouille: #B84B2A;
+    --mousse:  #4A5240;
+    --brume:   #C8BBA8;
+    --blanc:   #FAF7F2;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--blanc);
+    color: var(--terre);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 2.5rem;
+    background: rgba(242,234,216,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(139,94,60,0.15);
+  }
+
+  .nav-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--terre);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--rouille); }
+
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--argile);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover,
+  .nav-links a.active { color: var(--rouille); }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    padding-top: 7rem;
+    padding-bottom: 0;
+    background: var(--terre);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 85% 60%, rgba(184,75,42,0.2) 0%, transparent 55%),
+      radial-gradient(ellipse at 10% 20%, rgba(139,94,60,0.25) 0%, transparent 50%);
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem 2.5rem 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    gap: 4rem;
+    position: relative;
+  }
+
+  .header-left { padding-bottom: 4rem; }
+
+  .header-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--rouille);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .header-eyebrow::before {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background: var(--rouille);
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    color: var(--creme);
+  }
+
+  .header-title em {
+    display: block;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--sable);
+    font-size: 0.6em;
+    margin-top: 0.3em;
+  }
+
+  .header-sub {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--brume);
+    max-width: 38ch;
+  }
+
+  /* Stat blocks */
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-bottom: 0;
+    align-self: stretch;
+    justify-content: flex-end;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid rgba(200,187,168,0.15);
+  }
+
+  .stat-block {
+    flex: 1;
+    padding: 1.8rem 1.5rem;
+    border-right: 1px solid rgba(200,187,168,0.1);
+  }
+  .stat-block:last-child { border-right: none; }
+
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--rouille);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(200,187,168,0.5);
+    margin-top: 0.4rem;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .content-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr 2.2fr;
+    gap: 5rem;
+    align-items: start;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: sticky;
+    top: 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .sidebar-block {
+    border-left: 2px solid var(--sable);
+    padding-left: 1.5rem;
+  }
+
+  .sidebar-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rouille);
+    margin-bottom: 0.8rem;
+  }
+
+  .sidebar-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--terre);
+    line-height: 1.4;
+  }
+
+  .sidebar-note {
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--argile);
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+  }
+
+  .tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--argile);
+    border: 1px solid var(--sable);
+    padding: 0.25rem 0.6rem;
+  }
+
+  /* Main text */
+  .main-text { }
+
+  .chapter {
+    margin-bottom: 4rem;
+    animation: fadeInUp 0.7s ease both;
+  }
+
+  .chapter:nth-child(1) { animation-delay: 0.1s; }
+  .chapter:nth-child(2) { animation-delay: 0.2s; }
+  .chapter:nth-child(3) { animation-delay: 0.3s; }
+  .chapter:nth-child(4) { animation-delay: 0.4s; }
+
+  .chapter-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--sable);
+    opacity: 0.35;
+    line-height: 1;
+    margin-bottom: -0.5rem;
+  }
+
+  .chapter-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+    font-weight: 900;
+    color: var(--terre);
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+
+  .chapter-title em {
+    font-style: italic;
+    color: var(--rouille);
+  }
+
+  .chapter p {
+    font-size: 1rem;
+    line-height: 1.85;
+    color: #4A3728;
+    margin-bottom: 1.2rem;
+  }
+
+  .chapter p:last-child { margin-bottom: 0; }
+
+  /* Pull quote */
+  .pull-quote {
+    margin: 2.5rem 0;
+    padding: 2rem 2.5rem;
+    background: var(--creme);
+    border-left: 3px solid var(--rouille);
+    position: relative;
+  }
+
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--terre);
+    line-height: 1.5;
+    margin: 0 !important;
+  }
+
+  /* Divider */
+  .chapter-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 3rem 0;
+    opacity: 0.3;
+  }
+  .chapter-divider::before,
+  .chapter-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--argile);
+  }
+  .chapter-divider span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    color: var(--argile);
+  }
+
+  /* ── VALEURS ── */
+  .valeurs-section {
+    background: var(--creme);
+    padding: 5rem 2.5rem;
+    border-top: 1px solid rgba(139,94,60,0.15);
+    border-bottom: 1px solid rgba(139,94,60,0.15);
+  }
+
+  .valeurs-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rouille);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+    font-weight: 900;
+    color: var(--terre);
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--sable), transparent);
+    opacity: 0.4;
+  }
+
+  .valeurs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--sable);
+    border: 1px solid var(--sable);
+  }
+
+  .valeur-card {
+    background: var(--blanc);
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .valeur-card:hover { background: #EDE3CE; }
+
+  .valeur-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--rouille);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+  }
+
+  .valeur-card:hover::after { transform: scaleX(1); }
+
+  .valeur-index {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--sable);
+    opacity: 0.4;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .valeur-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--terre);
+    margin-bottom: 0.8rem;
+  }
+
+  .valeur-desc {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--argile);
+  }
+
+  /* ── CTA BAS ── */
+  .cta-section {
+    background: var(--terre);
+    padding: 5rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(184,75,42,0.2) 0%, transparent 65%);
+  }
+
+  .cta-inner { position: relative; max-width: 580px; margin: 0 auto; }
+
+  .cta-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 900;
+    color: var(--creme);
+    line-height: 1.25;
+    margin-bottom: 1.2rem;
+  }
+
+  .cta-title em {
+    font-style: italic;
+    color: var(--sable);
+  }
+
+  .cta-sub {
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--brume);
+    margin-bottom: 2.5rem;
+  }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--terre);
+    background: var(--creme);
+    padding: 1rem 2.2rem;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .cta-btn:hover { background: var(--sable); }
+
+  .cta-btn::after { content: '→'; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--terre);
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(200,187,168,0.1);
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--creme);
+  }
+  .footer-logo span { color: var(--rouille); font-style: normal; }
+
+  .footer-tagline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(200,187,168,0.35);
+    margin-top: 0.2rem;
+  }
+
+  .footer-right {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(200,187,168,0.3);
+    text-align: right;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .header-left { animation: fadeInUp 0.8s ease 0.1s both; }
+  .header-right { animation: fadeInUp 0.8s ease 0.3s both; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .header-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .header-right { flex-direction: row; }
+    .stat-row { flex: 1; }
+    .content-wrapper { grid-template-columns: 1fr; gap: 3rem; }
+    .sidebar { position: static; flex-direction: row; flex-wrap: wrap; }
+    .sidebar-block { flex: 1 1 180px; }
+    .valeurs-grid { grid-template-columns: 1fr; }
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.2rem; }
+  }
+
+  @media (max-width: 600px) {
+    footer { flex-direction: column; gap: 1.2rem; text-align: center; }
+    .footer-right { text-align: center; }
+    .header-right { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Terrain<span> Vague</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#articles">Articles</a></li>
+    <li><a href="#">Mindset</a></li>
+    <li><a href="#">Parcours</a></li>
+    <li><a href="terrain-vague-apropos.html">À propos</a></li>
+  </ul>
+</nav>
+
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="header-eyebrow">La personne derrière les mots</div>
+      <h1 class="header-title">
+        À propos
+        <em>du blog</em>
+      </h1>
+      <p class="header-sub">
+        Pas de photo. Pas de nom. Juste ce qui est écrit, 
+        et ce que ça fait quand on le lit.
+      </p>
+    </div>
+
+    <div class="header-right">
+      <div class="stat-row">
+        <div class="stat-block">
+          <div class="stat-number">Sud-O.</div>
+          <div class="stat-label">Ancré dans</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">En cours</div>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-block">
+          <div class="stat-number">0</div>
+          <div class="stat-label">Recette miracle</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Vécu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<div class="content-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-block">
+      <div class="sidebar-label">Ce blog, c'est</div>
+      <div class="sidebar-value">Un espace pour penser à voix haute</div>
+      <div class="sidebar-note">Pas une marque. Pas un personal branding. Juste un endroit où écrire pour de vrai.</div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-label">Ce que tu trouveras</div>
+      <div class="tag-list">
+        <span class="tag">Mindset</span>
+        <span class="tag">Parcours</span>
+        <span class="tag">Effort</span>
+        <span class="tag">Résilience</span>
+        <span class="tag">Vraie vie</span>
+        <span class="tag">Élévation</span>
+      </div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-label">Ce que tu ne trouveras pas</div>
+      <div class="tag-list">
+        <span class="tag">Hacks miracles</span>
+        <span class="tag">Morning routine</span>
+        <span class="tag">5 steps to success</span>
+        <span class="tag">Motivational quotes</span>
+      </div>
+    </div>
+
+    <div class="sidebar-block">
+      <div class="sidebar-label">Fréquence</div>
+      <div class="sidebar-value">Quand ça vaut le coup</div>
+      <div class="sidebar-note">Pas un calendrier éditorial. Un article quand j'ai quelque chose à dire vraiment.</div>
+    </div>
+  </aside>
+
+  <!-- MAIN TEXT -->
+  <main class="main-text">
+
+    <div class="chapter">
+      <div class="chapter-number">01</div>
+      <h2 class="chapter-title">Pourquoi ce blog <em>existe</em></h2>
+      <p>
+        Je ne suis pas un coach. Je n'ai pas de certification en développement personnel, 
+        je n'ai pas levé des millions, et je n'ai pas eu de révélation matinale à 5h du matin 
+        qui a tout changé.
+      </p>
+      <p>
+        Ce que j'ai, c'est une vraie vie — avec ses détours, ses périodes de flottement, 
+        ses choix difficiles et ses erreurs assumées. Et un jour, j'ai eu besoin d'écrire 
+        pour démêler tout ça. Non pas pour me plaindre. Pour comprendre.
+      </p>
+      <p>
+        Ce blog est né de là. D'un besoin d'honnêteté dans un espace saturé de contenus lisses, 
+        de success stories taillées pour plaire et de conseils qui ne tiennent pas à l'épreuve 
+        de la vraie vie.
+      </p>
+
+      <div class="pull-quote">
+        <p>Le terrain vague, c'est l'espace entre deux vies. On y est tous passés. Beaucoup y sont encore. C'est le bon endroit pour parler vrai.</p>
+      </div>
+    </div>
+
+    <div class="chapter-divider"><span>✦</span></div>
+
+    <div class="chapter">
+      <div class="chapter-number">02</div>
+      <h2 class="chapter-title">Qui écrit <em>ici</em></h2>
+      <p>
+        Quelqu'un qui a mis du temps à trouver sa voie. Et qui l'assume.
+      </p>
+      <p>
+        Des années à tâtonner, à essayer des choses qui ne m'allaient pas, 
+        à me demander pourquoi certains semblaient savoir exactement où ils allaient 
+        pendant que moi je naviguais à vue. Ce n'était pas du talent en moins. 
+        C'était juste un chemin différent — plus long, plus sinueux, mais finalement plus réel.
+      </p>
+      <p>
+        Aujourd'hui je construis quelque chose. Pas parfait. Pas fini. 
+        Mais ancré dans ce que je suis vraiment, dans une région que j'ai choisie, 
+        avec des projets qui ont du sens pour moi. Et c'est de là que j'écris.
+      </p>
+      <p>
+        Je reste anonyme par choix. Parce que ce qui compte ici, 
+        c'est ce que tu ressens en lisant — pas qui je suis. 
+        Si les mots résonnent, c'est qu'une partie de ton parcours s'y reflète. 
+        C'est tout ce qui importe.
+      </p>
+    </div>
+
+    <div class="chapter-divider"><span>✦</span></div>
+
+    <div class="chapter">
+      <div class="chapter-number">03</div>
+      <h2 class="chapter-title">Ce que ce blog <em>n'est pas</em></h2>
+      <p>
+        Ce n'est pas un blog de développement personnel au sens commercial du terme. 
+        Pas de programmes à vendre, pas d'upsell, pas de funnel déguisé en contenu gratuit.
+      </p>
+      <p>
+        Ce n'est pas non plus un journal de bord victimaire. 
+        Je n'écris pas pour me lamenter sur ce qui ne va pas. 
+        La France est ce qu'elle est, la vie coûte ce qu'elle coûte, 
+        les obstacles sont réels — mais l'objectif ici, c'est de trouver quoi faire avec.
+      </p>
+      <p>
+        Et ce n'est certainement pas un espace de certitudes. 
+        Je suis encore en chemin. Certains articles vont à l'encontre de ce que j'aurais 
+        écrit deux ans plus tôt. C'est normal. C'est même le signe que ça avance.
+      </p>
+
+      <div class="pull-quote">
+        <p>Je n'écris pas depuis le sommet. J'écris depuis la pente. C'est peut-être pour ça que certains se reconnaissent.</p>
+      </div>
+    </div>
+
+    <div class="chapter-divider"><span>✦</span></div>
+
+    <div class="chapter">
+      <div class="chapter-number">04</div>
+      <h2 class="chapter-title">Pour <em>qui</em></h2>
+      <p>
+        Pour ceux qui triment sans que personne ne le voit. 
+        Pour ceux qui ont pris des décisions que leur entourage n'a pas comprises. 
+        Pour ceux qui ont eu des périodes creuses et qui refusent de les effacer 
+        de leur récit parce qu'elles font partie du tableau.
+      </p>
+      <p>
+        Pour ceux qui cherchent à s'élever — pas au sens Instagram du terme, 
+        mais au sens concret : devenir plus solide, plus lucide, plus aligné 
+        avec ce qu'ils sont vraiment.
+      </p>
+      <p>
+        Pour les gens de la vraie vie, en somme.
+      </p>
+    </div>
+
+  </main>
+</div>
+
+<!-- VALEURS -->
+<section class="valeurs-section">
+  <div class="valeurs-inner">
+    <div class="section-header">
+      <span class="section-label">Ce qui guide chaque article</span>
+      <h2 class="section-title">Les lignes directrices</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="valeurs-grid">
+      <div class="valeur-card">
+        <div class="valeur-index">I</div>
+        <div class="valeur-title">Authenticité sans posture</div>
+        <div class="valeur-desc">
+          Ici, rien n'est écrit pour impressionner. 
+          Si c'est dur, c'est dit. Si c'est compliqué, c'est montré dans sa complexité. 
+          La vulnérabilité n'est pas un outil de marketing — c'est juste la réalité.
+        </div>
+      </div>
+      <div class="valeur-card">
+        <div class="valeur-index">II</div>
+        <div class="valeur-title">Concret avant tout</div>
+        <div class="valeur-desc">
+          Les grandes idées ne valent rien si elles ne tiennent pas debout dans la vraie vie. 
+          Chaque réflexion ici part d'une expérience, d'une situation, d'un truc qui s'est vraiment passé.
+        </div>
+      </div>
+      <div class="valeur-card">
+        <div class="valeur-index">III</div>
+        <div class="valeur-title">Toujours en mouvement</div>
+        <div class="valeur-desc">
+          Ce blog ne prétend pas détenir la vérité. 
+          Il pense à voix haute. Il évolue. 
+          Les contradictions ne sont pas des failles — elles sont la preuve que quelqu'un réfléchit vraiment.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2 class="cta-title">
+      Tu reconnais quelque chose<br><em>dans ce que tu viens de lire ?</em>
+    </h2>
+    <p class="cta-sub">
+      Alors les articles sont pour toi. Pas de grande promesse. 
+      Juste des mots qui viennent du terrain, écrits pour ceux qui y sont encore.
+    </p>
+    <a href="index.html" class="cta-btn">Lire les articles</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">Terrain <span>Vague</span></div>
+    <div class="footer-tagline">L'élévation depuis le sol</div>
+  </div>
+  <div class="footer-right">
+    © 2026 — Terrain Vague<br>
+    Blog personnel · Tous droits réservés
+  </div>
+</footer>
+
+</body>
+</html>
