@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le terrain vague — l'espace entre deux vies · Terrain Vague</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --terre:   #2C1F14;
+    --argile:  #8B5E3C;
+    --sable:   #D4B896;
+    --creme:   #F2EAD8;
+    --rouille: #B84B2A;
+    --brume:   #C8BBA8;
+    --blanc:   #FAF7F2;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--blanc);
+    color: var(--terre);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--rouille);
+    width: 0%;
+    z-index: 200;
+    transition: width 0.1s linear;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 2.5rem;
+    background: rgba(242,234,216,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(139,94,60,0.15);
+  }
+
+  .nav-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--terre);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--rouille); }
+
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--argile);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--rouille); }
+
+  /* ── ARTICLE HERO ── */
+  .article-hero {
+    padding-top: 5rem;
+    background: var(--terre);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .article-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 80% 20%, rgba(184,75,42,0.2) 0%, transparent 55%),
+      radial-gradient(ellipse at 10% 80%, rgba(139,94,60,0.25) 0%, transparent 50%);
+  }
+
+  .hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 4rem 2.5rem 5rem;
+    position: relative;
+  }
+
+  .article-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(200,187,168,0.45);
+    margin-bottom: 2.5rem;
+    animation: fadeInUp 0.6s ease both;
+  }
+  .article-breadcrumb a {
+    color: rgba(200,187,168,0.45);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .article-breadcrumb a:hover { color: var(--brume); }
+  .article-breadcrumb span { color: var(--rouille); }
+
+  .article-tag {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rouille);
+    border: 1px solid var(--rouille);
+    padding: 0.25rem 0.7rem;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.6s ease 0.1s both;
+  }
+
+  .article-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--creme);
+    margin-bottom: 0.5rem;
+    animation: fadeInUp 0.7s ease 0.2s both;
+  }
+
+  .article-title em {
+    display: block;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--sable);
+    font-size: 0.75em;
+    margin-top: 0.2em;
+  }
+
+  .article-intro-line {
+    margin-top: 2rem;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--brume);
+    max-width: 54ch;
+    animation: fadeInUp 0.7s ease 0.35s both;
+  }
+
+  .article-meta-bar {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(200,187,168,0.12);
+    animation: fadeInUp 0.7s ease 0.45s both;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(200,187,168,0.35);
+  }
+
+  .meta-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    color: rgba(200,187,168,0.6);
+  }
+
+  .meta-sep {
+    width: 1px;
+    height: 2rem;
+    background: rgba(200,187,168,0.1);
+  }
+
+  /* ── ARTICLE LAYOUT ── */
+  .article-layout {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr 2.4fr;
+    gap: 5rem;
+    align-items: start;
+  }
+
+  /* Sticky sidebar */
+  .article-sidebar {
+    position: sticky;
+    top: 5.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .sidebar-toc-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rouille);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .sidebar-toc-title::before {
+    content: '';
+    display: block;
+    width: 1.5rem;
+    height: 1px;
+    background: var(--rouille);
+  }
+
+  .toc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    border-left: 1px solid rgba(139,94,60,0.25);
+    padding-left: 1.2rem;
+  }
+
+  .toc-list a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    color: var(--argile);
+    text-decoration: none;
+    line-height: 1.4;
+    transition: color 0.2s;
+    display: block;
+  }
+  .toc-list a:hover { color: var(--rouille); }
+
+  .sidebar-share {
+    padding-top: 2rem;
+    border-top: 1px solid rgba(139,94,60,0.15);
+  }
+
+  .share-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(139,94,60,0.5);
+    margin-bottom: 0.8rem;
+  }
+
+  .share-note {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--argile);
+    font-style: italic;
+  }
+
+  .reading-time-block {
+    padding: 1.2rem 1.5rem;
+    background: var(--creme);
+    border-left: 2px solid var(--sable);
+  }
+
+  .rt-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--argile);
+    margin-bottom: 0.3rem;
+  }
+
+  .rt-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--terre);
+  }
+
+  /* ── ARTICLE BODY ── */
+  .article-body { max-width: 65ch; }
+
+  .article-body p {
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: #3D2A1C;
+    margin-bottom: 1.6rem;
+  }
+
+  .article-body p:last-child { margin-bottom: 0; }
+
+  .article-body h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--terre);
+    line-height: 1.2;
+    margin: 3.5rem 0 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(139,94,60,0.15);
+  }
+
+  .article-body h2 em {
+    font-style: italic;
+    color: var(--rouille);
+  }
+
+  /* Drop cap */
+  .article-body .intro-para::first-letter {
+    font-family: 'Playfair Display', serif;
+    font-size: 4.2rem;
+    font-weight: 900;
+    float: left;
+    line-height: 0.8;
+    margin: 0.1em 0.1em 0 0;
+    color: var(--rouille);
+    padding-top: 0.1em;
+  }
+
+  /* Pull quote */
+  .pull-quote {
+    margin: 3rem -1rem;
+    padding: 2rem 2.5rem;
+    background: var(--creme);
+    border-left: 3px solid var(--rouille);
+    position: relative;
+  }
+
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-style: italic;
+    font-weight: 700;
+    color: var(--terre);
+    line-height: 1.5;
+    margin: 0 !important;
+  }
+
+  .pull-quote cite {
+    display: block;
+    margin-top: 0.8rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--argile);
+    font-style: normal;
+  }
+
+  /* Emphasis block */
+  .emphasis-block {
+    margin: 2.5rem 0;
+    padding: 0.2rem 0 0.2rem 1.5rem;
+    border-left: 2px solid var(--sable);
+  }
+
+  .emphasis-block p {
+    font-size: 0.95rem !important;
+    color: var(--argile) !important;
+    font-style: italic;
+  }
+
+  /* Section divider */
+  .section-break {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 3rem 0;
+    opacity: 0.25;
+  }
+  .section-break::before, .section-break::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--argile);
+  }
+  .section-break span {
+    font-family: 'Barlow Condensed', sans-serif;
+    color: var(--argile);
+    font-size: 0.9rem;
+  }
+
+  /* ── ARTICLE FOOTER ── */
+  .article-footer-band {
+    background: var(--terre);
+    padding: 4rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .article-footer-band::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(184,75,42,0.15) 0%, transparent 55%);
+  }
+
+  .footer-band-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 3rem;
+    position: relative;
+  }
+
+  .footer-band-text {}
+
+  .footer-band-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rouille);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .footer-band-label::before {
+    content: '';
+    width: 1.5rem;
+    height: 1px;
+    background: var(--rouille);
+    display: block;
+  }
+
+  .footer-band-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--creme);
+    line-height: 1.3;
+  }
+  .footer-band-title em { font-style: italic; color: var(--sable); }
+
+  .footer-band-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  .btn-creme {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--terre);
+    background: var(--creme);
+    padding: 0.85rem 1.8rem;
+    text-decoration: none;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-creme:hover { background: var(--sable); }
+  .btn-creme::after { content: '→'; }
+
+  .btn-ghost {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(200,187,168,0.4);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(200,187,168,0.2);
+    padding-bottom: 0.1rem;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .btn-ghost:hover { color: var(--brume); }
+
+  /* ── SUGGESTED ARTICLES ── */
+  .suggested-section {
+    padding: 5rem 2.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rouille);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 900;
+    color: var(--terre);
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--sable), transparent);
+    opacity: 0.4;
+  }
+
+  .suggested-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--sable);
+    border: 1px solid var(--sable);
+  }
+
+  .suggested-card {
+    background: var(--blanc);
+    padding: 2.5rem 2rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .suggested-card:hover { background: var(--creme); }
+
+  .suggested-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--rouille);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .suggested-card:hover::after { transform: scaleX(1); }
+
+  .suggested-tag {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rouille);
+    border: 1px solid rgba(184,75,42,0.35);
+    padding: 0.2rem 0.5rem;
+    width: fit-content;
+  }
+
+  .suggested-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--terre);
+    line-height: 1.25;
+  }
+
+  .suggested-meta {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    color: var(--brume);
+    text-transform: uppercase;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--terre);
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(200,187,168,0.08);
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--creme);
+  }
+  .footer-logo span { color: var(--rouille); font-style: normal; }
+
+  .footer-tagline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(200,187,168,0.3);
+    margin-top: 0.2rem;
+  }
+
+  .footer-right {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(200,187,168,0.25);
+    text-align: right;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .article-layout { grid-template-columns: 1fr; gap: 3rem; }
+    .article-sidebar { position: static; flex-direction: row; flex-wrap: wrap; gap: 1.5rem; }
+    .footer-band-inner { flex-direction: column; align-items: flex-start; }
+    .footer-band-actions { align-items: flex-start; }
+    .suggested-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.2rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    .footer-right { text-align: center; }
+    .pull-quote { margin: 2rem 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar" id="progress"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="terrain-vague.html" class="nav-logo">Terrain<span> Vague</span></a>
+  <ul class="nav-links">
+    <li><a href="#">Articles</a></li>
+    <li><a href="#">Mindset</a></li>
+    <li><a href="#">Parcours</a></li>
+    <li><a href="terrain-vague-apropos.html">À propos</a></li>
+  </ul>
+</nav>
+
+<!-- ARTICLE HERO -->
+<header class="article-hero">
+  <div class="hero-inner">
+    <div class="article-breadcrumb">
+      <a href="terrain-vague.html">Accueil</a>
+      <span>/</span>
+      <a href="#">Articles</a>
+      <span>/</span>
+      Mindset
+    </div>
+
+    <div class="article-tag">Mindset · Article fondateur</div>
+
+    <h1 class="article-title">
+      Le terrain vague
+      <em>l'espace entre deux vies</em>
+    </h1>
+
+    <p class="article-intro-line">
+      On nous a vendu l'idée que la vie adulte c'était un chemin balisé. 
+      Mais la plupart d'entre nous marchent dans un espace sans nom, sans carte, sans certitude. 
+      Et c'est justement là que tout commence.
+    </p>
+
+    <div class="article-meta-bar">
+      <div class="meta-item">
+        <span class="meta-label">Publié le</span>
+        <span class="meta-value">Mars 2026</span>
+      </div>
+      <div class="meta-sep"></div>
+      <div class="meta-item">
+        <span class="meta-label">Lecture</span>
+        <span class="meta-value">8 minutes</span>
+      </div>
+      <div class="meta-sep"></div>
+      <div class="meta-item">
+        <span class="meta-label">Thème</span>
+        <span class="meta-value">Mindset · Élévation</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ARTICLE LAYOUT -->
+<div class="article-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="article-sidebar">
+
+    <div class="reading-time-block">
+      <div class="rt-label">Temps de lecture</div>
+      <div class="rt-value">~8 min</div>
+    </div>
+
+    <div>
+      <div class="sidebar-toc-title">Dans cet article</div>
+      <ul class="toc-list">
+        <li><a href="#section-1">Le terrain vague, c'est quoi</a></li>
+        <li><a href="#section-2">On y entre comment</a></li>
+        <li><a href="#section-3">Pourquoi c'est difficile à vivre</a></li>
+        <li><a href="#section-4">Ce que le terrain vague fait de toi</a></li>
+        <li><a href="#section-5">Comment on en sort</a></li>
+        <li><a href="#section-6">Conclusion</a></li>
+      </ul>
+    </div>
+
+    <div class="sidebar-share">
+      <div class="share-title">Ce que tu lis ici</div>
+      <p class="share-note">
+        Un article écrit depuis le terrain. Pas depuis un bureau avec vue sur Paris. 
+        Si quelque chose résonne, c'est fait pour être partagé.
+      </p>
+    </div>
+
+  </aside>
+
+  <!-- ARTICLE BODY -->
+  <article class="article-body">
+
+    <p class="intro-para">
+      Il y a un espace que personne ne te prépare à traverser. 
+      Pas l'école, pas tes parents, pas les livres de développement personnel avec leurs couvertures orangées 
+      et leurs promesses en douze étapes. Cet espace, c'est celui qui existe entre ce que tu étais 
+      et ce que tu es en train de devenir. Entre une vie que tu quittes — ou qui te quitte — 
+      et une vie qui n'existe pas encore tout à fait. 
+      Je l'appelle le terrain vague.
+    </p>
+
+    <p>
+      C'est pas poétique. C'est pas romantique. 
+      C'est inconfortable, souvent solitaire, et parfois franchement épuisant. 
+      Mais c'est aussi l'endroit où se passe quelque chose d'essentiel — si tu acceptes de t'y attarder 
+      au lieu de fuir à toute vitesse vers la prochaine chose censée te donner une direction.
+    </p>
+
+    <h2 id="section-1">Le terrain vague, <em>c'est quoi</em></h2>
+
+    <p>
+      Au sens littéral, un terrain vague c'est un bout de terre qui n'appartient à rien. 
+      Pas cultivé, pas construit, pas clôturé. Laissé là, entre deux parcelles qui savent ce qu'elles sont. 
+      On le traverse pour couper. On l'évite le soir. Rarement on s'y arrête.
+    </p>
+
+    <p>
+      Dans une vie, c'est pareil. Le terrain vague c'est la période entre deux identités stables. 
+      Quand le poste que tu occupais depuis des années disparaît. Quand tu réalises que la voie 
+      que tu suivais depuis l'adolescence n'est plus la tienne. Quand une relation prend fin 
+      et que tu ne sais plus très bien qui tu es sans elle. Quand tu décides de tout réorienter 
+      mais que rien n'est encore en place pour valider ce choix.
+    </p>
+
+    <div class="pull-quote">
+      <p>Le terrain vague n'est pas une erreur de parcours. C'est un état de transition obligatoire entre deux versions de soi.</p>
+    </div>
+
+    <p>
+      Ce n'est pas une crise, même si ça y ressemble. Ce n'est pas un échec, même si les gens autour 
+      de toi peuvent le lire comme ça. C'est un processus. Long, souvent opaque, mais nécessaire.
+    </p>
+
+    <h2 id="section-2">On y <em>entre comment</em></h2>
+
+    <p>
+      Parfois brutalement. Un licenciement, un divorce, une maladie, un deuil. 
+      La vie te pousse dedans sans te demander ton avis et tu te retrouves à genoux 
+      sur ce bout de terre sans nom en te demandant ce qui vient de se passer.
+    </p>
+
+    <p>
+      Parfois lentement. Une insatisfaction qui grandit en sourdine pendant des mois, 
+      des années. Une petite voix qui dit que quelque chose cloche — dans ce boulot, 
+      dans cette ville, dans cette version de toi-même que tu joues chaque matin. 
+      Et un jour tu te rends compte que tu es déjà dans le terrain vague depuis longtemps, 
+      tu t'étais juste pas autorisé à le voir.
+    </p>
+
+    <div class="emphasis-block">
+      <p>
+        Les deux entrées sont valides. La brutalité et le glissement progressif mènent au même endroit : 
+        un espace où les anciennes certitudes ne fonctionnent plus et où les nouvelles 
+        n'ont pas encore eu le temps de se former.
+      </p>
+    </div>
+
+    <p>
+      Et parfois — c'est plus rare mais ça existe — on y entre par choix. 
+      On décide de quitter quelque chose de stable, de confortable, de prévisible, 
+      parce qu'on a compris que confortable ne voulait pas dire juste. 
+      C'est probablement le cas le plus courageux, et aussi le plus incompris par l'entourage.
+    </p>
+
+    <h2 id="section-3">Pourquoi c'est <em>difficile à vivre</em></h2>
+
+    <p>
+      Parce qu'on vit dans une culture de la destination, pas du chemin. 
+      Tout autour de toi valorise l'arrivée : le poste obtenu, la maison achetée, 
+      le projet lancé, la transformation accomplie. Le "j'y suis" et le "j'ai réussi". 
+      Personne ne filme le milieu.
+    </p>
+
+    <p>
+      Alors quand tu es dans le terrain vague, tu n'as rien à montrer. 
+      Rien à poster. Rien à annoncer. Tu es juste là, à travailler quelque chose 
+      qui n'est pas encore visible. Et dans un monde qui confond silence avec stagnation, 
+      c'est épuisant à tenir.
+    </p>
+
+    <div class="pull-quote">
+      <p>La pression sociale ne te dit pas d'avancer. Elle te dit d'arriver. C'est pas pareil. Et cette nuance peut te coûter très cher si tu n'y fais pas attention.</p>
+    </div>
+
+    <p>
+      Il y a aussi la question des comparaisons. Ceux de ta génération qui semblent avoir 
+      tout réglé — ou du moins qui en donnent l'impression sur LinkedIn — 
+      pendant que toi tu es encore en train de défricher. 
+      C'est une comparaison faussée dès le départ, parce que tu compares ton intérieur 
+      à leur façade. Mais c'est dur de s'en souvenir quand on est dedans.
+    </p>
+
+    <h2 id="section-4">Ce que le terrain vague <em>fait de toi</em></h2>
+
+    <p>
+      Si tu ne fuis pas — et c'est une condition essentielle — 
+      le terrain vague fait quelque chose que peu d'expériences font aussi bien : 
+      il te débarrasse de ce qui n'est pas toi.
+    </p>
+
+    <p>
+      Les identités d'emprunt, les rôles qu'on t'a assignés, les ambitions calquées 
+      sur ce que les autres attendaient de toi — tout ça tient tant qu'il y a 
+      une structure pour le soutenir. Enlève la structure, et tu vois ce qui reste. 
+      Ce qui reste, c'est toi. Le vrai.
+    </p>
+
+    <div class="emphasis-block">
+      <p>
+        C'est inconfortable parce que le "vrai toi" est souvent moins certain, 
+        moins impressionnant, plus complexe que le personnage qu'on s'était construit. 
+        Mais il est beaucoup plus solide. Et c'est lui qui construira quelque chose qui dure.
+      </p>
+    </div>
+
+    <p>
+      Le terrain vague est aussi un endroit de clarification. 
+      Ce qui compte vraiment émerge quand on n'a plus le bruit de fond de l'agenda chargé, 
+      des obligations sociales, des cases à cocher. Les vraies questions remontent. 
+      Qu'est-ce que je veux faire de mon temps ? Pour qui ? Pour quoi ? 
+      C'est des questions simples en apparence, difficiles à tenir en face.
+    </p>
+
+    <h2 id="section-5">Comment <em>on en sort</em></h2>
+
+    <p>
+      Pas en accélérant. C'est le réflexe naturel et c'est presque toujours une erreur. 
+      Quand on est dans le terrain vague, l'inconfort est si fort qu'on veut s'en sortir 
+      le plus vite possible — en sautant dans la prochaine chose disponible, 
+      même si elle ne correspond pas vraiment. Et on se retrouve dans un terrain vague 
+      deux ans plus tard, avec un détour de perdu.
+    </p>
+
+    <p>
+      On en sort en faisant le travail. Pas le travail spectaculaire — 
+      le travail discret, quotidien, parfois ingrat. Poser une brique. 
+      Tester une direction. Apprendre quelque chose de nouveau. 
+      Revenir sur ses décisions avec honnêteté. 
+      Continuer même quand les résultats ne sont pas encore visibles.
+    </p>
+
+    <div class="pull-quote">
+      <p>Le terrain vague ne se traverse pas. Il se travaille. Et ce travail-là, tu le fais seul, dans le silence, sans applaudissements au bout. C'est exactement pour ça que si peu de gens le font vraiment.</p>
+    </div>
+
+    <p>
+      On en sort aussi en acceptant que ça prend le temps que ça prend. 
+      Pas le temps que tu voudrais. Pas le temps que les autres estiment raisonnable. 
+      Le temps réel, organique, que ça prend pour qu'une nouvelle version de toi 
+      soit suffisamment solide pour tenir debout.
+    </p>
+
+    <div class="section-break"><span>✦</span></div>
+
+    <h2 id="section-6"><em>Pour finir</em></h2>
+
+    <p>
+      Si tu lis cet article et que tu te reconnais dans ce que je décris, 
+      je veux te dire un truc simple : tu n'es pas en train de rater ta vie. 
+      Tu es en train de la construire. Et c'est souvent indiscernable de l'extérieur.
+    </p>
+
+    <p>
+      Le terrain vague n'est pas une anomalie dans ton parcours. 
+      C'est une étape. Peut-être la plus importante. 
+      Celle où tu décides — consciemment ou non — de qui tu veux vraiment être 
+      quand tu sortiras de l'autre côté.
+    </p>
+
+    <p>
+      Ce blog existe parce que j'ai été dans ce terrain-là. 
+      Parce que j'y suis encore, par certains aspects. 
+      Et parce que j'ai trouvé utile d'écrire depuis l'intérieur, 
+      plutôt que d'attendre d'être "arrivé" pour raconter comment on traverse.
+    </p>
+
+    <p>
+      Bienvenue sur Terrain Vague.
+    </p>
+
+  </article>
+</div>
+
+<!-- ARTICLE FOOTER BAND -->
+<div class="article-footer-band">
+  <div class="footer-band-inner">
+    <div class="footer-band-text">
+      <div class="footer-band-label">La suite</div>
+      <div class="footer-band-title">
+        Tu veux pas rater<br><em>ce qui vient après</em>
+      </div>
+    </div>
+    <div class="footer-band-actions">
+      <a href="#" class="btn-creme">Tous les articles</a>
+      <a href="terrain-vague-apropos.html" class="btn-ghost">En savoir plus sur ce blog</a>
+    </div>
+  </div>
+</div>
+
+<!-- SUGGESTED ARTICLES -->
+<section class="suggested-section">
+  <div class="section-header">
+    <span class="section-label">À lire aussi</span>
+    <h2 class="section-title">Dans la même veine</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="suggested-grid">
+    <a href="#" class="suggested-card">
+      <div>
+        <div class="suggested-tag">Parcours</div>
+        <div class="suggested-title">
+          J'ai tout plaqué pour m'installer en zone rurale. Voilà ce que personne ne te dit.
+        </div>
+      </div>
+      <div class="suggested-meta">Fév. 2026 · 6 min de lecture</div>
+    </a>
+    <a href="#" class="suggested-card">
+      <div>
+        <div class="suggested-tag">Effort</div>
+        <div class="suggested-title">
+          La discipline, c'est pas pour les forts. C'est ce qui crée les forts.
+        </div>
+      </div>
+      <div class="suggested-meta">Jan. 2026 · 5 min de lecture</div>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">Terrain <span>Vague</span></div>
+    <div class="footer-tagline">L'élévation depuis le sol</div>
+  </div>
+  <div class="footer-right">
+    © 2026 — Terrain Vague<br>
+    Blog personnel · Tous droits réservés
+  </div>
+</footer>
+
+<!-- READING PROGRESS SCRIPT -->
+<script>
+  const bar = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = pct + '%';
+  });
+</script>
+
+</body>
+</html>
